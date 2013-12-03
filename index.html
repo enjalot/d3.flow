@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+  <script src="d3.js"></script>
+  <script src="lib/sticker.js"></script>
+  <script src="lib/simple.js"></script>
+  <style>
+    #example {
+      fill: none;
+      stroke: #00f;
+      stroke-width: 4px;
+    }
+    .pipe {
+      fill: none;
+      stroke: #000;
+    }
+    .flow {
+      fill: none;
+      stroke: #0f0;
+    }
+  </style>
+</head>
+<body>
+  <div id="content">
+    <button id="start">start</button>
+    <button id="pause">pause</button>
+    <svg id="surface">
+      <path id="example" d="M100 100,L200 100,L200 150,L300 150">
+    </svg>
+  </div>
+
+  <script>
+    var svg = d3.select("svg#surface")
+    var flow = d3.flow.simple()
+      .v(1)
+      .duration(3000)
+      .path("#example")
+      .w(10)
+      .h(4)
+      .spacing(0.1) //spacing ratio
+
+    var g = svg.append("g");
+    flow(g);
+
+    //manage state of the flow.
+    var running = false;
+    var paused = false;
+    d3.select("#start").on("click", function() {
+      if(!running) {
+        flow.start();
+        running = true;
+        d3.select(this).html("stop")
+      } else {
+        flow.stop();
+        running = false;
+        d3.select(this).html("start")
+      }
+    })
+    d3.select("#pause").on("click", function() {
+      if(!paused) {
+        flow.pause();
+        paused = true;
+        d3.select(this).html("resume")
+      } else {
+        flow.resume();
+        paused = false;
+        d3.select(this).html("pause")
+      }
+    })
+  </script>
+</body>

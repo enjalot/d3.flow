@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+  <script src="d3.js"></script>
+  <script src="lib/sticker.js"></script>
+  <script src="lib/simple.js"></script>
+  <style>
+    #example {
+      fill: none;
+      stroke: #00f;
+      stroke-width: 4px;
+    }
+    .pipe {
+      fill: none;
+      stroke: #000;
+    }
+    .flow {
+      fill: none;
+      stroke: #0f0;
+    }
+  </style>
+</head>
+<body>
+  <div id="content">
+    <button id="start">start</button>
+    <button id="pause">pause</button>
+    <svg id="surface">
+      <path id="example" d="M100 100,L400 100,L400 120,L800 120">
+    </svg>
+  </div>
+
+  <script>
+    var duration = 20000;
+    var w = 10;
+    var h = 4;
+    var spacing = 0.1;
+
+    var data = [
+      1, 1, 2, 3, 5, 8, 13
+    ]
+    var flows = data.map(function(d) {
+      console.log("d", d);
+      return d3.flow.simple()
+      .v(d)
+      .w(w)
+      .h(h)
+      .duration(duration)
+      .spacing(spacing)
+      .path("#example")
+
+    })
+    var svg = d3.select("svg#surface")
+
+    svg.selectAll("g.flows")
+    .data(flows)
+    .enter()
+    .append("g").classed("flows", true)
+    .each(function(flow) {
+      flow(d3.select(this));
+    })
+    .attr("transform", function(d, i) {
+      return "translate(" + [0, i * 30] + ")";
+    })
+
+    //manage state of the flow.
+    var running = false;
+    var paused = false;
+    d3.select("#start").on("click", function() {
+      flows.forEach(function(flow) {
+        if(!running) {
+          flow.start();
+        } else {
+          flow.stop();
+        }
+      });
+      if(!running) {
+          running = true;
+          d3.select(this).html("stop")
+        } else {
+          running = false;
+          d3.select(this).html("start")
+        }
+    })
+    d3.select("#pause").on("click", function() {
+      flows.forEach(function(flow) {
+        if(!paused) {
+          flow.pause();
+        } else {
+          flow.resume();
+        }
+      });
+        if(!paused) {
+          paused = true;
+          d3.select(this).html("resume")
+        } else {
+          paused = false;
+          d3.select(this).html("pause")
+        }
+    })
+  </script>
+</body>
